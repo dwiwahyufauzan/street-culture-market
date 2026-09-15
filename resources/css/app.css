@@ -1,0 +1,70 @@
+@import 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Base styles */
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        @apply font-sans text-scm-black bg-scm-white antialiased;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-bold uppercase tracking-tight;
+    }
+
+    /* Scrollbar minimal */
+    ::-webkit-scrollbar {
+        @apply w-1;
+    }
+    ::-webkit-scrollbar-track {
+        @apply bg-scm-gray-100;
+    }
+    ::-webkit-scrollbar-thumb {
+        @apply bg-scm-gray-400;
+    }
+}
+
+/* Komponen reusable */
+@layer components {
+    /* Tombol utama */
+    .btn-primary {
+        @apply bg-scm-black text-white py-3 px-8 text-sm uppercase tracking-widest font-medium
+               hover:bg-scm-gray-800 active:bg-scm-gray-900
+               transition-colors duration-200 cursor-pointer text-center inline-block;
+    }
+
+    /* Tombol outline */
+    .btn-outline {
+        @apply border border-scm-black text-scm-black py-3 px-8 text-sm uppercase tracking-widest font-medium
+               hover:bg-scm-black hover:text-white
+               transition-colors duration-200 cursor-pointer text-center inline-block;
+    }
+
+    /* Input field */
+    .input-field {
+        @apply w-full border border-scm-gray-300 px-4 py-3 text-sm
+               focus:border-scm-black focus:outline-none
+               transition-colors duration-200;
+    }
+
+    /* Badge label */
+    .badge {
+        @apply inline-block px-3 py-1 text-xs uppercase tracking-wider font-medium;
+    }
+
+    /* Section padding standard */
+    .section-padding {
+        @apply px-4 md:px-8 lg:px-16 py-12 md:py-20;
+    }
+
+    /* Container standard */
+    .container-scm {
+        @apply max-w-screen-2xl mx-auto;
+    }
+}
