@@ -139,7 +139,8 @@ class CheckoutTest extends TestCase
         // Cart must be empty after order
         $this->assertEquals(0, $cart->count());
 
-        $response->assertRedirect(route('checkout.success', $order));
+        $this->assertNotNull($order->midtrans_snap_token);
+        $response->assertRedirect(route('checkout.payment', $order));
     }
 
     public function test_authenticated_customer_order_is_associated_with_user_id(): void
@@ -169,8 +170,9 @@ class CheckoutTest extends TestCase
         $this->assertEquals($user->id, $order->user_id);
         $this->assertEquals(25000, $order->shipping_cost);
         $this->assertEquals(275000, $order->total);
+        $this->assertNotNull($order->midtrans_snap_token);
 
-        $response->assertRedirect(route('checkout.success', $order));
+        $response->assertRedirect(route('checkout.payment', $order));
     }
 
     public function test_checkout_validation_errors_when_fields_missing(): void

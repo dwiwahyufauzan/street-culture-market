@@ -5,6 +5,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
@@ -33,10 +34,16 @@ Route::patch('/cart/{rowId}', [CartController::class, 'update'])->name('cart.upd
 Route::delete('/cart/{rowId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
 
-// Checkout
+// Checkout & Payment
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/payment/{order}', [CheckoutController::class, 'payment'])->name('checkout.payment');
 Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
+
+// Midtrans Payment Webhook & Callbacks
+Route::post('/payment/notification', [PaymentController::class, 'notification'])->name('payment.notification');
+Route::get('/payment/finish', [PaymentController::class, 'finish'])->name('payment.finish');
+Route::get('/payment/simulate/{order}', [PaymentController::class, 'simulateSuccess'])->name('payment.simulate');
 
 /*
 |--------------------------------------------------------------------------

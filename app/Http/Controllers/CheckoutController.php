@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Services\CartService;
+use App\Services\MidtransService;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -138,6 +139,10 @@ class CheckoutController extends Controller
                 ]);
             }
 
+            // Generate Midtrans Snap token
+            $snapToken = app(MidtransService::class)->createSnapToken($order);
+            $order->update(['midtrans_snap_token' => $snapToken]);
+
             $this->cart->clear();
 
             session(['placed_order_id' => $order->id]);
@@ -145,8 +150,42 @@ class CheckoutController extends Controller
             return $order;
         });
 
-        return redirect()->route('checkout.success', $order)
+        return redirect()->route('checkout.payment', $order)
             ->with('success', 'Order created successfully! Please proceed to complete payment.');
+    }
+
+    /**
+     * Display the payment gateway checkout page with Midtrans Snap.
+     */
+    public function payment(Order $order): View|RedirectResponse
+    {
+        // Access control: only order owner or session placer can view
+        if ($order->user_id && auth()->check() && auth()->id() !== $order->user_id) {
+            abort(403, 'Unauthorized access to this order payment.');
+        }
+
+        if ($order->user_id && ! auth()->check() && session('placed_order_id') !== $order->id) {
+            return redirect()->route('login');
+        }
+
+        // If order is already paid, redirect to success
+        if ($order->payment_status === 'paid') {
+            return redirect()->route('checkout.success', $order)
+                ->with('info', 'This order has already been paid.');
+        }
+
+        // Generate snap token if not yet generated
+        if (! $order->midtrans_snap_token) {
+            $snapToken = app(MidtransService::class)->createSnapToken($order);
+            $order->update(['midtrans_snap_token' => $snapToken]);
+        }
+
+        $order->load(['items.product.primaryImage']);
+
+        SEOMeta::setTitle("Payment for Order #{$order->order_number} — Street Culture Market");
+        SEOMeta::setDescription("Complete your payment for Street Culture Market order #{$order->order_number}.");
+
+        return view('checkout.payment', compact('order'));
     }
 
     /**

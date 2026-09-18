@@ -45,9 +45,17 @@
           <span class="text-[11px] uppercase tracking-widest text-scm-gray-500 font-semibold">
             Order Status
           </span>
-          <span class="inline-block bg-scm-black text-white text-[11px] uppercase tracking-widest font-bold px-3.5 py-1.5 font-mono">
-            {{ $order->status }} &bull; {{ $order->payment_status }}
-          </span>
+          <div class="flex items-center gap-2">
+            <span class="inline-block bg-scm-black text-white text-[11px] uppercase tracking-widest font-bold px-3.5 py-1.5 font-mono">
+              {{ $order->status }} &bull; {{ $order->payment_status }}
+            </span>
+            @if($order->payment_status === 'unpaid' && $order->status !== 'cancelled')
+              <a href="{{ route('checkout.payment', $order) }}" 
+                 class="inline-block bg-neutral-800 hover:bg-black text-white text-[11px] uppercase tracking-widest font-bold px-3.5 py-1.5 transition">
+                Pay Now &rarr;
+              </a>
+            @endif
+          </div>
         </div>
       </div>
 
