@@ -7,6 +7,7 @@ use App\Models\Product;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -62,8 +63,9 @@ class ProductController extends Controller
 
         $products = $query->paginate(12)->withQueryString();
         $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
+        $availableSizes = ['S', 'M', 'L', 'XL', 'XXL'];
 
-        return view('products.index', compact('products', 'categories'));
+        return view('products.index', compact('products', 'categories', 'availableSizes'));
     }
 
     /**
@@ -73,10 +75,12 @@ class ProductController extends Controller
     {
         $product = Product::with([
             'category',
-            'images',
+            'images' => fn ($q) => $q->orderBy('sort_order')->orderByDesc('is_primary'),
             'variants',
             'upsellProducts.primaryImage',
+            'upsellProducts.category',
             'crossSells.primaryImage',
+            'crossSells.category',
         ])
             ->where('slug', $slug)
             ->where('is_active', true)
@@ -85,6 +89,13 @@ class ProductController extends Controller
         SEOMeta::setTitle($product->name.' — Street Culture Market');
         SEOMeta::setDescription($product->description ?? 'Premium streetwear release by Street Culture Market.');
         OpenGraph::setTitle($product->name.' — Street Culture Market');
+
+        // Group variants by size & color
+        $sizes = $product->variants->pluck('size')->unique()->values();
+        $colors = $product->variants->pluck('color')->filter()->unique()->values();
+
+        // Recently viewed products (session tracked)
+        $recentlyViewed = $this->getRecentlyViewed($product->id);
 
         // Dynamic automatic upselling fallback if no manual upsell configured
         $upsells = $product->upsellProducts;
@@ -110,6 +121,46 @@ class ProductController extends Controller
                 ->get();
         }
 
-        return view('products.show', compact('product', 'upsells', 'crossSells'));
+        $isWishlisted = auth()->check()
+            ? auth()->user()->wishlists()->where('product_id', $product->id)->exists()
+            : false;
+
+        return view('products.show', compact(
+            'product',
+            'sizes',
+            'colors',
+            'recentlyViewed',
+            'upsells',
+            'crossSells',
+            'isWishlisted'
+        ));
+    }
+
+    /**
+     * Track and fetch recently viewed products from session.
+     *
+     * @return Collection<int, Product>
+     */
+    private function getRecentlyViewed(int $currentId): Collection
+    {
+        $viewed = session('recently_viewed', []);
+
+        // Prepend current product, deduplicate, limit to 8
+        $viewed = array_values(array_filter($viewed, fn ($id) => (int) $id !== $currentId));
+        array_unshift($viewed, $currentId);
+        $viewed = array_slice($viewed, 0, 8);
+        session(['recently_viewed' => $viewed]);
+
+        $otherIds = array_values(array_diff($viewed, [$currentId]));
+
+        if (empty($otherIds)) {
+            return new Collection;
+        }
+
+        return Product::with(['primaryImage', 'category'])
+            ->whereIn('id', $otherIds)
+            ->where('is_active', true)
+            ->take(4)
+            ->get();
     }
 }

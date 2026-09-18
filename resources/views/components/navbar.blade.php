@@ -51,6 +51,17 @@
           </svg>
         </button>
 
+        <!-- Wishlist Link -->
+        <a
+          href="{{ route('wishlist.index') }}"
+          class="text-scm-black hover:text-scm-gray-500 transition-colors p-1"
+          aria-label="Saved Wishlist"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+        </a>
+
         <!-- Account / Admin Link -->
         @auth
           @if(auth()->user()->isAdmin() || auth()->user()->isOwner())
@@ -122,6 +133,9 @@
       </a>
       <a href="{{ route('products.index', ['sale' => '1']) }}" class="block text-xs uppercase tracking-[0.2em] font-medium py-2 text-red-600">
         Sale Drops
+      </a>
+      <a href="{{ route('wishlist.index') }}" class="block text-xs uppercase tracking-[0.2em] font-medium py-2 text-scm-black">
+        Saved Wishlist
       </a>
       @guest
         <div class="pt-2 border-t border-scm-gray-100 flex gap-4">
