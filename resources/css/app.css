@@ -1,13 +1,16 @@
-@import 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap';
+@import 'https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300;1,400&display=swap';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles */
+/* ============================================================
+   BASE LAYER — Global reset & typography
+   ============================================================ */
 @layer base {
     html {
         scroll-behavior: smooth;
+        -webkit-text-size-adjust: 100%;
     }
 
     body {
@@ -18,53 +21,148 @@
         @apply font-bold uppercase tracking-tight;
     }
 
-    /* Scrollbar minimal */
-    ::-webkit-scrollbar {
-        @apply w-1;
+    /* Improved minimal scrollbar */
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { @apply bg-scm-gray-100; }
+    ::-webkit-scrollbar-thumb { @apply bg-scm-gray-400 rounded-none; }
+    ::-webkit-scrollbar-thumb:hover { @apply bg-scm-gray-600; }
+
+    /* Text selection */
+    ::selection {
+        @apply bg-scm-black text-white;
     }
-    ::-webkit-scrollbar-track {
-        @apply bg-scm-gray-100;
-    }
-    ::-webkit-scrollbar-thumb {
-        @apply bg-scm-gray-400;
+
+    /* Focus-visible ring — keyboard accessible */
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-scm-black;
     }
 }
 
-/* Komponen reusable */
+/* ============================================================
+   COMPONENTS LAYER — Reusable design tokens
+   ============================================================ */
 @layer components {
-    /* Tombol utama */
+
+    /* ── Buttons ── */
     .btn-primary {
         @apply bg-scm-black text-white py-3 px-8 text-sm uppercase tracking-widest font-medium
                hover:bg-scm-gray-800 active:bg-scm-gray-900
                transition-colors duration-200 cursor-pointer text-center inline-block;
     }
 
-    /* Tombol outline */
     .btn-outline {
         @apply border border-scm-black text-scm-black py-3 px-8 text-sm uppercase tracking-widest font-medium
                hover:bg-scm-black hover:text-white
                transition-colors duration-200 cursor-pointer text-center inline-block;
     }
 
-    /* Input field */
+    .btn-ghost {
+        @apply text-scm-black py-3 px-4 text-xs uppercase tracking-widest font-medium
+               hover:text-scm-gray-600 transition-colors duration-200 cursor-pointer inline-block;
+    }
+
+    /* ── Form Inputs ── */
     .input-field {
         @apply w-full border border-scm-gray-300 px-4 py-3 text-sm
                focus:border-scm-black focus:outline-none
-               transition-colors duration-200;
+               transition-colors duration-200 bg-white rounded-none;
     }
 
-    /* Badge label */
+    .input-field-dark {
+        @apply w-full bg-scm-gray-900 border border-scm-gray-700 text-white
+               placeholder-scm-gray-500 px-4 py-3 text-sm uppercase tracking-wider
+               focus:outline-none focus:border-white transition-colors duration-200;
+    }
+
+    /* ── Badges & Tags ── */
     .badge {
         @apply inline-block px-3 py-1 text-xs uppercase tracking-wider font-medium;
     }
 
-    /* Section padding standard */
+    .badge-dark {
+        @apply badge bg-scm-black text-white;
+    }
+
+    .badge-light {
+        @apply badge bg-white text-scm-black border border-scm-gray-200;
+    }
+
+    .badge-sale {
+        @apply badge bg-scm-black text-white text-[10px] tracking-widest;
+    }
+
+    /* ── Layout tokens ── */
     .section-padding {
         @apply px-4 md:px-8 lg:px-16 py-12 md:py-20;
     }
 
-    /* Container standard */
     .container-scm {
         @apply max-w-screen-2xl mx-auto;
+    }
+
+    /* ── Typography helpers ── */
+    .label-overline {
+        @apply text-[10px] md:text-xs uppercase tracking-[0.3em] font-semibold text-scm-gray-400;
+    }
+
+    .heading-editorial {
+        @apply text-3xl sm:text-5xl md:text-6xl font-black uppercase tracking-tight leading-[1.0];
+    }
+
+    .heading-section {
+        @apply text-2xl md:text-4xl font-black uppercase tracking-tight;
+    }
+
+    /* ── Link with animated underline ── */
+    .link-underline {
+        @apply relative text-scm-black uppercase text-xs tracking-[0.2em] font-semibold;
+    }
+
+    .link-underline::after {
+        content: '';
+        @apply absolute bottom-0 left-0 w-0 h-[2px] bg-scm-black transition-all duration-300;
+    }
+
+    .link-underline:hover::after {
+        @apply w-full;
+    }
+
+    /* ── Divider ── */
+    .divider-scm {
+        @apply border-t border-scm-gray-200 my-6 md:my-8;
+    }
+
+    /* ── Marquee / Ticker text animation ── */
+    .marquee-track {
+        display: flex;
+        width: max-content;
+        animation: marquee 30s linear infinite;
+    }
+
+    .marquee-track:hover {
+        animation-play-state: paused;
+    }
+
+    @keyframes marquee {
+        from { transform: translateX(0); }
+        to   { transform: translateX(-50%); }
+    }
+
+    /* ── Page hero utility ── */
+    .page-hero {
+        @apply bg-scm-white border-b border-scm-gray-200 py-10 md:py-16;
+    }
+
+    /* ── Card hover overlay ── */
+    .card-hover-overlay {
+        @apply absolute bottom-0 inset-x-0 bg-scm-black text-white py-3 text-center
+               text-xs uppercase tracking-[0.2em] font-medium
+               translate-y-full group-hover:translate-y-0
+               transition-transform duration-300 ease-in-out;
+    }
+
+    /* ── Sticky-scroll utility ── */
+    .sticky-top-bar {
+        @apply sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-scm-gray-200;
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Product;
 use Artesaos\SEOTools\Facades\OpenGraph;
 use Artesaos\SEOTools\Facades\SEOMeta;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 
 class HomeController extends Controller
 {
@@ -37,6 +38,13 @@ class HomeController extends Controller
             ->take(4)
             ->get();
 
+        /** @var Collection<int, Product> $editorialProducts */
+        $editorialProducts = Product::with(['primaryImage', 'category'])
+            ->where('is_active', true)
+            ->inRandomOrder()
+            ->take(3)
+            ->get();
+
         $categories = Category::where('is_active', true)
             ->orderBy('sort_order')
             ->take(6)
@@ -46,6 +54,7 @@ class HomeController extends Controller
             'banners',
             'newArrivals',
             'featuredProducts',
+            'editorialProducts',
             'categories'
         ));
     }
