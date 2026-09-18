@@ -98,7 +98,7 @@
           </div>
 
           <div class="pt-2">
-            <a href="/checkout" class="btn-primary w-full text-center block text-xs tracking-[0.25em]">
+            <a href="{{ route('checkout.index') }}" class="btn-primary w-full text-center block text-xs tracking-[0.25em]">
               Proceed To Checkout &rarr;
             </a>
           </div>

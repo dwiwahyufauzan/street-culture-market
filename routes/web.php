@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -30,6 +31,11 @@ Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 Route::patch('/cart/{rowId}', [CartController::class, 'update'])->name('cart.update');
 Route::delete('/cart/{rowId}', [CartController::class, 'remove'])->name('cart.remove');
 Route::get('/cart/count', [CartController::class, 'count'])->name('cart.count');
+
+// Checkout
+Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/checkout/success/{order}', [CheckoutController::class, 'success'])->name('checkout.success');
 
 /*
 |--------------------------------------------------------------------------
