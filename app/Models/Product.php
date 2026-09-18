@@ -215,6 +215,14 @@ class Product extends Model
     }
 
     /**
+     * Determine if the model should be searchable.
+     */
+    public function shouldBeSearchable(): bool
+    {
+        return (bool) $this->is_active;
+    }
+
+    /**
      * Get the indexable data array for Scout search.
      *
      * @return array<string, mixed>
@@ -226,7 +234,6 @@ class Product extends Model
             'name' => $this->name,
             'description' => $this->description,
             'sku' => $this->sku,
-            'category_name' => $this->category?->name,
         ];
     }
 }

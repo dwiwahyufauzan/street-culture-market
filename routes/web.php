@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\WishlistController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+
+// Search (Laravel Scout)
+Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+Route::get('/search/suggest', [SearchController::class, 'suggest'])->name('search.suggest');
 
 // Category Collections
 Route::get('/collections/{slug}', [CategoryController::class, 'show'])->name('categories.show');
