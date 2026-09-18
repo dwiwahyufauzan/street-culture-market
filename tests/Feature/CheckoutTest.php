@@ -7,7 +7,6 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductVariant;
 use App\Models\User;
-use App\Services\CartService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -15,10 +14,29 @@ class CheckoutTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function setUp(): void
+    /**
+     * Build a minimal cart session payload for a given product.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    private function buildCartSession(Product $product, string $size = 'M', int $qty = 1): array
     {
-        parent::setUp();
-        app(CartService::class)->clear();
+        $rowId = 'test-row-'.uniqid();
+
+        return [
+            'shopping_cart' => [
+                $rowId => [
+                    'row_id' => $rowId,
+                    'product_id' => $product->id,
+                    'name' => $product->name,
+                    'slug' => $product->slug,
+                    'size' => $size,
+                    'quantity' => $qty,
+                    'price' => (float) ($product->sale_price ?? $product->price),
+                    'image' => null,
+                ],
+            ],
+        ];
     }
 
     public function test_empty_cart_redirects_from_checkout_to_cart_index(): void
@@ -45,11 +63,9 @@ class CheckoutTest extends TestCase
             'stock' => 10,
         ]);
 
-        // Add to cart
-        $cart = app(CartService::class);
-        $cart->add($product->id, 'L', 1);
-
-        $response = $this->get(route('checkout.index'));
+        $response = $this
+            ->withSession($this->buildCartSession($product, 'L'))
+            ->get(route('checkout.index'));
 
         $response->assertStatus(200);
         $response->assertViewIs('checkout.index');
@@ -75,9 +91,11 @@ class CheckoutTest extends TestCase
             'sale_price' => null,
             'is_active' => true,
         ]);
-        app(CartService::class)->add($product->id, 'M', 1);
 
-        $response = $this->actingAs($user)->get(route('checkout.index'));
+        $response = $this
+            ->actingAs($user)
+            ->withSession($this->buildCartSession($product))
+            ->get(route('checkout.index'));
 
         $response->assertStatus(200);
         $response->assertSee('Aditya Streetwear');
@@ -99,8 +117,7 @@ class CheckoutTest extends TestCase
             'stock' => 5,
         ]);
 
-        $cart = app(CartService::class);
-        $cart->add($product->id, 'XL', 2);
+        $cartSession = $this->buildCartSession($product, 'XL', 2);
 
         $payload = [
             'customer_name' => 'Budi Santoso',
@@ -114,7 +131,9 @@ class CheckoutTest extends TestCase
             'notes' => 'Please leave with reception.',
         ];
 
-        $response = $this->post(route('checkout.store'), $payload);
+        $response = $this
+            ->withSession($cartSession)
+            ->post(route('checkout.store'), $payload);
 
         $order = Order::first();
         $this->assertNotNull($order);
@@ -136,9 +155,6 @@ class CheckoutTest extends TestCase
         $this->assertEquals(2, $item->quantity);
         $this->assertEquals(1300000, $item->subtotal);
 
-        // Cart must be empty after order
-        $this->assertEquals(0, $cart->count());
-
         $this->assertNotNull($order->midtrans_snap_token);
         $response->assertRedirect(route('checkout.payment', $order));
     }
@@ -151,7 +167,8 @@ class CheckoutTest extends TestCase
             'sale_price' => null,
             'is_active' => true,
         ]);
-        app(CartService::class)->add($product->id, 'S', 1);
+
+        $cartSession = $this->buildCartSession($product, 'S', 1);
 
         $payload = [
             'customer_name' => $user->name,
@@ -164,9 +181,13 @@ class CheckoutTest extends TestCase
             'shipping_method' => 'JNE_REG',
         ];
 
-        $response = $this->actingAs($user)->post(route('checkout.store'), $payload);
+        $response = $this
+            ->actingAs($user)
+            ->withSession($cartSession)
+            ->post(route('checkout.store'), $payload);
 
         $order = Order::first();
+        $this->assertNotNull($order);
         $this->assertEquals($user->id, $order->user_id);
         $this->assertEquals(25000, $order->shipping_cost);
         $this->assertEquals(275000, $order->total);
@@ -182,9 +203,10 @@ class CheckoutTest extends TestCase
             'sale_price' => null,
             'is_active' => true,
         ]);
-        app(CartService::class)->add($product->id, 'M', 1);
 
-        $response = $this->post(route('checkout.store'), []);
+        $response = $this
+            ->withSession($this->buildCartSession($product))
+            ->post(route('checkout.store'), []);
 
         $response->assertSessionHasErrors([
             'customer_name',
