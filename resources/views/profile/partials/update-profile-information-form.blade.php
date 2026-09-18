@@ -47,6 +47,38 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="phone" :value="__('Phone / WhatsApp')" />
+            <x-text-input id="phone" name="phone" type="tel" class="mt-1 block w-full" :value="old('phone', $user->phone)" placeholder="08123456789" />
+            <x-input-error class="mt-2" :messages="$errors->get('phone')" />
+        </div>
+
+        <div>
+            <x-input-label for="address" :value="__('Default Shipping Address')" />
+            <textarea id="address" name="address" rows="3" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm" placeholder="Street name, building, RT/RW">{{ old('address', $user->address) }}</textarea>
+            <x-input-error class="mt-2" :messages="$errors->get('address')" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+                <x-input-label for="city" :value="__('City')" />
+                <x-text-input id="city" name="city" type="text" class="mt-1 block w-full" :value="old('city', $user->city)" placeholder="Jakarta Selatan" />
+                <x-input-error class="mt-2" :messages="$errors->get('city')" />
+            </div>
+
+            <div>
+                <x-input-label for="province" :value="__('Province')" />
+                <x-text-input id="province" name="province" type="text" class="mt-1 block w-full" :value="old('province', $user->province)" placeholder="DKI Jakarta" />
+                <x-input-error class="mt-2" :messages="$errors->get('province')" />
+            </div>
+
+            <div>
+                <x-input-label for="postal_code" :value="__('Postal Code')" />
+                <x-text-input id="postal_code" name="postal_code" type="text" class="mt-1 block w-full" :value="old('postal_code', $user->postal_code)" placeholder="12430" />
+                <x-input-error class="mt-2" :messages="$errors->get('postal_code')" />
+            </div>
+        </div>
+
         <div class="flex items-center gap-4">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
